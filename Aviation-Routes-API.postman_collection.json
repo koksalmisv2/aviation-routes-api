@@ -1,0 +1,327 @@
+{
+  "info": {
+    "name": "Aviation Routes API",
+    "description": "API collection for Aviation Routes case study",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login as Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"token\", jsonData.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login as Agency",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"agency\",\n  \"password\": \"agency123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Locations",
+      "item": [
+        {
+          "name": "Get All Locations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/locations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "locations"]
+            }
+          }
+        },
+        {
+          "name": "Create Location - Taksim Square",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Taksim Square\",\n  \"country\": \"Turkey\",\n  \"city\": \"Istanbul\",\n  \"locationCode\": \"CCIST\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/locations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "locations"]
+            }
+          }
+        },
+        {
+          "name": "Create Location - Istanbul Airport",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Istanbul Airport\",\n  \"country\": \"Turkey\",\n  \"city\": \"Istanbul\",\n  \"locationCode\": \"IST\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/locations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "locations"]
+            }
+          }
+        },
+        {
+          "name": "Create Location - London Heathrow",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"London Heathrow Airport\",\n  \"country\": \"UK\",\n  \"city\": \"London\",\n  \"locationCode\": \"LHR\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/locations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "locations"]
+            }
+          }
+        },
+        {
+          "name": "Update Location",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Taksim Square Updated\",\n  \"country\": \"Turkey\",\n  \"city\": \"Istanbul\",\n  \"locationCode\": \"CCIST\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/locations/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "locations", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Location",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/locations/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "locations", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transportations",
+      "item": [
+        {
+          "name": "Get All Transportations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transportations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transportations"]
+            }
+          }
+        },
+        {
+          "name": "Create Transportation - Bus",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"originLocationId\": 1,\n  \"destinationLocationId\": 2,\n  \"transportationType\": \"BUS\",\n  \"operatingDays\": [1, 2, 3, 4, 5, 6, 7]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/transportations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transportations"]
+            }
+          }
+        },
+        {
+          "name": "Create Transportation - Flight",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"originLocationId\": 2,\n  \"destinationLocationId\": 3,\n  \"transportationType\": \"FLIGHT\",\n  \"operatingDays\": [1, 3, 5]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/transportations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transportations"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Routes",
+      "item": [
+        {
+          "name": "Search Routes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/routes?originId=1&destinationId=3&date=2025-03-10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "routes"],
+              "query": [
+                {
+                  "key": "originId",
+                  "value": "1"
+                },
+                {
+                  "key": "destinationId",
+                  "value": "3"
+                },
+                {
+                  "key": "date",
+                  "value": "2025-03-10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
