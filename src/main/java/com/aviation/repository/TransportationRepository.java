@@ -43,28 +43,4 @@ public interface TransportationRepository extends JpaRepository<Transportation, 
                                                   @Param("destinationId") Long destinationId,
                                                   @Param("dayOfWeek") int dayOfWeek);
 
-    @Query("""
-            SELECT DISTINCT t FROM Transportation t LEFT JOIN FETCH t.operatingDays
-            WHERE t.transportationType = 'FLIGHT'
-            AND :dayOfWeek MEMBER OF t.operatingDays
-            """)
-    List<Transportation> findAvailableFlights(@Param("dayOfWeek") int dayOfWeek);
-
-    @Query("""
-            SELECT DISTINCT t FROM Transportation t LEFT JOIN FETCH t.operatingDays
-            WHERE t.transportationType <> 'FLIGHT'
-            AND t.originLocation.id = :originId
-            AND :dayOfWeek MEMBER OF t.operatingDays
-            """)
-    List<Transportation> findAvailableNonFlightsFromOrigin(@Param("originId") Long originId,
-                                                           @Param("dayOfWeek") int dayOfWeek);
-
-    @Query("""
-            SELECT DISTINCT t FROM Transportation t LEFT JOIN FETCH t.operatingDays
-            WHERE t.transportationType <> 'FLIGHT'
-            AND t.destinationLocation.id = :destinationId
-            AND :dayOfWeek MEMBER OF t.operatingDays
-            """)
-    List<Transportation> findAvailableNonFlightsToDestination(@Param("destinationId") Long destinationId,
-                                                              @Param("dayOfWeek") int dayOfWeek);
 }
