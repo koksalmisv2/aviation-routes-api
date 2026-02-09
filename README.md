@@ -14,24 +14,37 @@ A comprehensive Spring Boot REST API for managing aviation routes, locations, an
 
 ## 🛠️ Tech Stack
 
+### Backend
 - **Java 21**
 - **Spring Boot 3.2.1**
 - **Spring Data JPA** (Hibernate)
 - **Spring Security** with JWT
-- **PostgreSQL** (production) / H2 (development)
+- **H2** (in-memory database)
 - **Redis** (caching)
-- **Swagger/OpenAPI 3**
+- **Swagger/OpenAPI 3** (SpringDoc)
 - **Maven**
-- **Docker & Docker Compose**
+- **Lombok**
 - **JUnit 5** & Mockito
+
+### Frontend
+- **React 18** with **TypeScript**
+- **Vite** (build tool)
+- **Ant Design 5** (UI library)
+- **React Router DOM 6** (routing)
+- **Axios** (HTTP client)
+- **Day.js** (date handling)
+
+### DevOps
+- **Docker & Docker Compose**
+- **Nginx** (frontend production server)
 
 ## 📋 Prerequisites
 
 - Java 21 or higher
 - Maven 3.6+
+- Node.js 20+ & npm (for frontend development)
 - Docker & Docker Compose (for containerized deployment)
-- PostgreSQL (if running without Docker)
-- Redis (if running without Docker)
+- Redis (optional for local development, required for caching)
 
 ## 🏃 Running the Application
 
@@ -60,7 +73,7 @@ The application will start with:
 - Username: `sa`
 - Password: (leave empty)
 
-### Option 2: Using Docker Compose with PostgreSQL & Redis
+### Option 2: Using Docker Compose (Full Stack)
 
 ```bash
 # Build and start all services
@@ -77,22 +90,20 @@ docker-compose down -v
 ```
 
 The application will be available at:
-- API: http://localhost:8080
-- Swagger UI: http://localhost:8080/swagger-ui.html
+- **Frontend**: http://localhost:3000
+- **API**: http://localhost:8080
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
 
-### Option 3: Running Locally with PostgreSQL & Redis
+### Option 3: Running with Redis Locally
 
-1. Start PostgreSQL and Redis:
+1. Start Redis:
 ```bash
-docker run -d -p 5432:5432 -e POSTGRES_DB=aviation_db -e POSTGRES_PASSWORD=postgres postgres:16-alpine
 docker run -d -p 6379:6379 redis:7-alpine
 ```
 
-2. Run with PostgreSQL profile:
+2. Run the application (uses H2 database + Redis cache):
 ```bash
-mvn spring-boot:run -Dspring-boot.run.profiles=postgres
-# Or
-java -jar target/routes-api-1.0.0.jar --spring.profiles.active=postgres
+mvn spring-boot:run
 ```
 
 ## 🔐 Authentication
@@ -259,23 +270,88 @@ curl -X GET "http://localhost:8080/api/routes?originId=1&destinationId=3&date=20
 ## 🏗️ Project Structure
 
 ```
-src/
-├── main/
-│   ├── java/com/aviation/
-│   │   ├── config/          # Configuration classes
-│   │   ├── controller/      # REST controllers
-│   │   ├── dto/            # Data Transfer Objects
-│   │   ├── entity/         # JPA entities
-│   │   ├── exception/      # Exception handlers
-│   │   ├── repository/     # JPA repositories
-│   │   ├── security/       # Security components (JWT)
-│   │   └── service/        # Business logic
-│   └── resources/
-│       ├── application.properties
-│       └── application-h2.properties
-└── test/
-    └── java/com/aviation/
-        └── service/        # Service tests
+aviation-routes-api/
+├── docker-compose.yml                  # Orchestrates app, frontend & Redis
+├── Dockerfile                          # Backend multi-stage Docker build
+├── pom.xml                             # Maven project configuration
+├── sample-data.sql                     # Sample SQL data for reference
+├── Aviation-Routes-API.postman_collection.json  # Postman API collection
+│
+├── src/                                # Backend (Spring Boot)
+│   ├── main/
+│   │   ├── java/com/aviation/
+│   │   │   ├── AviationRoutesApplication.java   # Application entry point
+│   │   │   ├── config/                # Configuration classes
+│   │   │   │   ├── CacheConfig.java           # Redis cache config
+│   │   │   │   ├── DataInitializer.java       # Default user seeder
+│   │   │   │   ├── OpenApiConfig.java         # Swagger/OpenAPI config
+│   │   │   │   └── SecurityConfig.java        # Spring Security & CORS
+│   │   │   ├── controller/            # REST controllers
+│   │   │   │   ├── AuthController.java        # POST /api/auth/login
+│   │   │   │   ├── LocationController.java    # /api/locations CRUD
+│   │   │   │   ├── RouteController.java       # GET /api/routes
+│   │   │   │   └── TransportationController.java  # /api/transportations CRUD
+│   │   │   ├── dto/                   # Data Transfer Objects
+│   │   │   │   ├── AuthRequest.java
+│   │   │   │   ├── AuthResponse.java
+│   │   │   │   ├── LocationDTO.java
+│   │   │   │   ├── RouteDTO.java
+│   │   │   │   └── TransportationDTO.java
+│   │   │   ├── entity/                # JPA entities & enums
+│   │   │   │   ├── Location.java
+│   │   │   │   ├── Transportation.java
+│   │   │   │   ├── User.java
+│   │   │   │   ├── TransportationType.java    # FLIGHT, BUS, SUBWAY, UBER
+│   │   │   │   ├── SegmentType.java           # BEFORE_FLIGHT, FLIGHT, AFTER_FLIGHT
+│   │   │   │   └── UserRole.java              # ADMIN, AGENCY
+│   │   │   ├── exception/             # Global exception handling
+│   │   │   │   └── GlobalExceptionHandler.java
+│   │   │   ├── repository/            # JPA repositories
+│   │   │   │   ├── LocationRepository.java
+│   │   │   │   ├── TransportationRepository.java
+│   │   │   │   └── UserRepository.java
+│   │   │   ├── security/              # JWT & authentication
+│   │   │   │   ├── CustomUserDetailsService.java
+│   │   │   │   ├── JwtAuthenticationFilter.java
+│   │   │   │   └── JwtUtil.java
+│   │   │   └── service/               # Business logic
+│   │   │       ├── AuthService.java
+│   │   │       ├── LocationService.java
+│   │   │       ├── RouteService.java
+│   │   │       └── TransportationService.java
+│   │   └── resources/
+│   │       └── application.properties         # App configuration
+│   └── test/
+│       └── java/com/aviation/service/        # Unit tests
+│           ├── LocationServiceTest.java
+│           ├── RouteServiceTest.java
+│           └── TransportationServiceTest.java
+│
+└── frontend/                           # Frontend (React + TypeScript)
+    ├── Dockerfile                      # Frontend multi-stage Docker build
+    ├── nginx.conf                      # Nginx config (production)
+    ├── package.json                    # Node dependencies
+    ├── tsconfig.json                   # TypeScript configuration
+    ├── vite.config.ts                  # Vite build configuration
+    ├── index.html                      # HTML entry point
+    └── src/
+        ├── main.tsx                    # React DOM root
+        ├── App.tsx                     # Main app with routing
+        ├── api/
+        │   └── axiosInstance.ts        # Axios with JWT interceptor
+        ├── components/
+        │   ├── AppLayout.tsx           # Navigation layout
+        │   ├── ProtectedRoute.tsx      # Auth route guard
+        │   └── AdminRoute.tsx          # Admin-only route guard
+        ├── context/
+        │   └── AuthContext.tsx          # Auth state management
+        ├── pages/
+        │   ├── LoginPage.tsx           # Login page
+        │   ├── LocationsPage.tsx       # Location management (Admin)
+        │   ├── TransportationsPage.tsx # Transportation management (Admin)
+        │   └── RoutesPage.tsx          # Route search (Admin & Agency)
+        └── types/
+            └── index.ts               # TypeScript type definitions
 ```
 
 ## 🔄 Route Calculation Logic
@@ -310,9 +386,7 @@ Example: `[1, 3, 5]` means the transportation operates on Monday, Wednesday, and
 
 ## 🔧 Configuration
 
-### Default Configuration (H2 + Simple Cache)
-
-The application runs out-of-the-box with H2 in-memory database and simple caching. No additional setup required!
+### Default Configuration (H2 + Redis Cache)
 
 Key configuration properties in `application.properties`:
 
@@ -320,16 +394,18 @@ Key configuration properties in `application.properties`:
 # Server
 server.port=8080
 
-# H2 Database (default)
+# H2 Database (in-memory)
 spring.datasource.url=jdbc:h2:mem:aviation_db
 spring.h2.console.enabled=true
 spring.h2.console.path=/h2-console
 
-# Simple Cache (default)
-spring.cache.type=simple
+# Redis Cache
+spring.cache.type=redis
+spring.data.redis.host=localhost
+spring.data.redis.port=6379
 
 # JWT
-jwt.secret=your-secret-key
+jwt.secret=aviationRoutesSecretKey...
 jwt.expiration=86400000
 
 # Hibernate
@@ -337,47 +413,50 @@ spring.jpa.hibernate.ddl-auto=create-drop
 spring.jpa.show-sql=true
 ```
 
-### PostgreSQL & Redis Configuration
+### Docker Compose Configuration
 
-To use PostgreSQL and Redis, run with the `postgres` profile:
+When running via Docker Compose, the Redis host is set via the `SPRING_DATA_REDIS_HOST` environment variable to connect to the Redis container. The application uses H2 in-memory database by default with Redis for caching.
 
-```bash
-java -jar target/routes-api-1.0.0.jar --spring.profiles.active=postgres
-```
+## 🐳 Docker
 
-This activates `application-postgres.properties`:
+### Docker Compose (Recommended)
 
-```properties
-# PostgreSQL
-spring.datasource.url=jdbc:postgresql://localhost:5432/aviation_db
-spring.datasource.username=postgres
-spring.datasource.password=postgres
+The `docker-compose.yml` orchestrates three services:
 
-# Redis Cache
-spring.cache.type=redis
-spring.data.redis.host=localhost
-spring.data.redis.port=6379
-```
-
-## 🐳 Docker Commands
+| Service      | Container          | Port | Description                  |
+|--------------|--------------------|------|------------------------------|
+| `redis`      | aviation-redis     | 6379 | Redis cache                  |
+| `app`        | aviation-app       | 8080 | Spring Boot API              |
+| `frontend`   | aviation-frontend  | 3000 | React app served via Nginx   |
 
 ```bash
-# Build the image
+# Build and start all services
+docker-compose up --build
+
+# Run in detached mode
+docker-compose up -d --build
+
+# Stop all services
+docker-compose down
+```
+
+### Standalone Docker Commands
+
+```bash
+# Build backend image
 docker build -t aviation-routes-api .
 
-# Run PostgreSQL
-docker run -d --name aviation-postgres \
-  -e POSTGRES_DB=aviation_db \
-  -e POSTGRES_PASSWORD=postgres \
-  -p 5432:5432 postgres:16-alpine
+# Build frontend image
+docker build -t aviation-frontend ./frontend
 
 # Run Redis
 docker run -d --name aviation-redis -p 6379:6379 redis:7-alpine
 
-# Run the application
+# Run the backend
 docker run -d --name aviation-app \
   -p 8080:8080 \
-  -e SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/aviation_db \
+  -e SPRING_DATA_REDIS_HOST=aviation-redis \
+  --link aviation-redis \
   aviation-routes-api
 ```
 
